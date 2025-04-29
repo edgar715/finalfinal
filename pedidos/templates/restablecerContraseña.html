@@ -1,0 +1,97 @@
+<!-- Importar el diseño de la plantilla -->
+{% extends 'plantilla.html' %}
+
+<!-- Cargar filtros personalizados -->
+{% load filtros %}
+
+<!-- Enlazar archivo CSS -->
+{% load static %}
+
+<!-- Cambiar titulo a la pestaña de navegación -->
+{% block title %} Restablecer Contraseña {% endblock %}
+ 
+<!-- Imagen como icono de pestaña -->
+{% block head %}
+    <link rel="shotcut icon" href="https://cdn-icons-png.flaticon.com/512/6665/6665299.png">
+{% endblock %}
+ 
+<!-- Contenido individual -->
+{% block body %}
+<link rel="stylesheet" href="{% static 'pedidos/css/formularios.css' %}">
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <br>
+            <div class="card mt-3">
+                <div class="card-header text-center">
+                    <h4><i class="fa-solid fa-users" style="color: #ffffff;"></i>&nbsp; Restablecer Contraseña</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_new_password1" class="form-label">Nueva Contraseña</label>
+                            {{ form.new_password1|agregar_class:"form-control" }}
+                            <br>
+                            {% for error in form.new_password1.errors %}
+                                <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                                    <strong>Error:</strong> {{ error }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_new_password2" class="form-label">Confirmar Contraseña</label>
+                            {{ form.new_password2|agregar_class:"form-control" }}
+                            <br>
+                            {% for error in form.new_password2.errors %}
+                                <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                                    <strong>Error:</strong> {{ error }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <button type="submit" class="btn btn-marron w-100">Cambiar Contraseña</button>
+                    </form>
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                        <strong>Error:</strong> {{ form.non_field_errors }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación de Cambio de Contraseña -->
+<div class="modal fade" id="modalCambioExitoso" tabindex="-1" role="dialog" aria-labelledby="modalCambioTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalCambioTitle">Cambio de Contraseña Exitoso</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                Tu contraseña ha sido cambiada exitosamente. Ahora puedes iniciar sesión con tu nueva contraseña.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-marron" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-marron"><a href="{% url 'pedidos:login' %}">Iniciar Sesión</a></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if cambio_exitoso %}
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#modalCambioExitoso').modal('show');
+    });
+</script>
+{% endif %}
+
+{% endblock %}
+<!-- Fin Contenido individual -->

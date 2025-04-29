@@ -1,0 +1,105 @@
+<!-- Importar el diseño de la plantilla -->
+{% extends 'plantilla.html' %}
+
+<!-- Cargar filtros personalizados -->
+{% load filtros %}
+
+<!-- Enlazar archivo CSS -->
+{% load static %}
+
+<!-- Cambiar titulo a la pestaña de navegación -->
+{% block title %} Añadir Producto {% endblock %}
+
+<!-- Imagen como icono de pestaña -->
+{% block head %}
+    <link rel="shotcut icon" href="https://cdn-icons-png.flaticon.com/512/12669/12669704.png">
+{% endblock %}
+
+<!-- Contenido individual -->
+{% block body %}
+<link rel="stylesheet" href="{% static 'pedidos/css/formularios.css' %}">
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <br>
+            <div class="card mt-5">
+                <div class="card-header text-center">
+                    <h4><i class="fa-solid fa-circle-plus" style="color: #ffffff;"></i>&nbsp; Añadir Producto</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'pedidos:crear_producto' %}">
+                        {% csrf_token %}
+                        <div class="row">
+                            <!-- Columna izquierda -->
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="txtCategoria" class="form-label">Categoría</label>
+                                    {{ form.categoria|agregar_class:"form-select" }}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="txtDescripcion" class="form-label">Descripción</label>
+                                    {{ form.descripcion|agregar_class:"form-control" }}
+                                </div>
+                            </div>
+
+                            <!-- Columna derecha -->
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="txtNombre" class="form-label">Nombre del Producto</label>
+                                    {{ form.nombre|agregar_class:"form-control" }}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="txtPrecio" class="form-label">Precio</label>
+                                    {{ form.precio|agregar_class:"form-control" }}
+                                </div>
+                            </div>
+
+                            <div class="text-center mt-3">
+                                <button type="submit" class="btn btn-marron w-100">Registrar Producto</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                            <strong>Error:</strong> {{ form.non_field_errors }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <br>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="successModalTitle">Registro Exitoso</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">¡El producto ha sido agregado exitosamente!</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-marron" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-marron">
+                    <a href="{% url 'pedidos:admin_productos' %}">Regresar</a>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if registro_exitoso %}
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#successModal').modal('show');
+    });
+</script>
+{% endif %}
+
+{% endblock %}
+<!-- Fin Contenido individual -->
