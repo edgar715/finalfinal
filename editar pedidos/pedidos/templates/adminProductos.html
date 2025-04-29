@@ -1,0 +1,140 @@
+<!-- Importar el diseño de la plantilla -->
+{% extends 'plantilla.html' %}
+
+<!-- Enlazar archivo CSS -->
+{% load static %}
+
+<!-- Cambiar titulo a la pestaña de navegación -->
+{% block title %} Gestión de Productos {% endblock %}
+
+<!-- Imagen como icono de pestaña -->
+{% block head %}
+    <link rel="shotcut icon" href="https://cdn-icons-png.flaticon.com/512/12669/12669704.png">
+{% endblock %}
+
+<!-- Contenido individual -->
+{% block body %}
+<link rel="stylesheet" href="{% static 'pedidos/css/listados.css' %}">
+
+<br>
+<div class="container bg-white rounded-3 mt-5">
+    <br><h2 class="text-center">PRODUCTOS</h2><br>
+
+    <!-- Botón para agregar un producto nuevo -->
+    <div class="text-end mb-3">
+        <a href="{% url 'pedidos:crear_producto' %}" class="btn btn-marron"><i class="fa-solid fa-plus" style="color: #ffffff;"></i>  Producto Nuevo</a>
+    </div>
+
+    <!-- Tabla de productos -->
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col"># PRODUCTO</th>
+                <th scope="col">CATEGORIA</th>
+                <th scope="col">NOMBRE</th>
+                <th scope="col">DESCRIPCIÓN</th>
+                <th scope="col">PRECIO</th>
+                <th scope="col">ACCIONES</th>
+            </tr>
+        </thead> 
+        <tbody>
+            {% for producto in productos %}
+            <tr>
+                <th>{{ producto.idProducto }}</th>
+                <td>{{ producto.get_categoria_display }}</td>
+                <td>{{ producto.nombre }}</td>
+                <td>{{ producto.descripcion }}</td>
+                <td>{{ producto.precio }}</td>
+                <td>
+                    <a href="{% url 'pedidos:editar_producto' producto.idProducto %}" class="btn btn-warning"><i class="fa-solid fa-pen-to-square" style="color: #000000;"></i></a>
+                    <button type="button" class="btn btn-danger" data-bs-target="#deleteModal" data-id="{{ producto.idProducto }}" data-bs-toggle="modal"><i class="fa-solid fa-eraser" style="color: #000000;"></i></button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center">No hay productos.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Paginación -->
+    <div class="d-flex justify-content-center mt-3">
+        <nav>
+            <ul class="pagination">
+                {% if productos.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1" aria-label="Primera página">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ productos.previous_page_number }}" aria-label="Página anterior">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+
+                <li class="page-item active">
+                    <span class="page-link">{{ productos.number }} <span class="sr-only">(actual)</span></span>
+                </li>
+
+                {% if productos.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ productos.next_page_number }}" aria-label="Página siguiente">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ productos.paginator.num_pages }}" aria-label="Última página">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- ELIMINAR PRODUCTO -->
+<!-- Modal de confirmación -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de que deseas eliminar este producto?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form method="POST" action="{% url 'pedidos:eliminar_producto' 0 %}" id="deleteForm">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> 
+
+<!-- Script para actualizar la acción del formulario con el ID del producto -->
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        var deleteModal = document.getElementById('deleteModal');
+        deleteModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget; // El botón que abrió el modal
+            var productoId = button.getAttribute('data-id'); // Obtén el ID del producto
+            var form = document.getElementById('deleteForm');
+            
+            // Actualiza la URL de la acción del formulario con el ID del producto
+            var actionUrl = "{% url 'pedidos:eliminar_producto' '0' %}".replace('0', productoId);
+            form.setAttribute('action', actionUrl);
+        });
+    });
+</script>
+
+
+{% endblock %}
+<!-- Fin Contenido individual -->

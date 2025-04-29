@@ -1,0 +1,115 @@
+<!-- Importar el diseño de la plantilla -->
+{% extends 'plantilla.html' %}
+
+<!-- Cargar filtros personalizados -->
+{% load filtros %}
+
+<!-- Enlazar archivo CSS -->
+{% load static %}
+ 
+<!-- Cambiar titulo a la pestaña de navegación -->
+{% block title %} Registro de Usuarios {% endblock %}
+
+<!-- Imagen como icono de pestaña -->
+{% block head %}
+    <link rel="shotcut icon" href="https://www.bred.fr/medias/images/illustrations/fiche-solution/illu_cado-carte_motivation.png">
+{% endblock %}
+
+
+<!-- Contenido individual -->
+{% block body %}
+<link rel="stylesheet" href="{% static 'pedidos/css/formularios.css' %}">
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <br>
+            <div class="card mt-5">
+                <div class="card-header text-center">
+                    <h4><i class="fa-solid fa-circle-plus" style="color: #ffffff;"></i>&nbsp; Crear Usuario</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="row">
+                            <!-- Columna izquierda -->
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="txtNombre" class="form-label">Nombre</label>
+                                    {{ form.nombre|agregar_class:"form-control" }}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="txtApPaterno" class="form-label">Apellido Materno</label>
+                                    {{ form.apMaterno|agregar_class:"form-control" }}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="txtTel" class="form-label">Telefono</label>
+                                    {{ form.telefono|agregar_class:"form-control" }}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="txtRol" class="form-label">Rol</label>
+                                    {{ form.rol|agregar_class:"form-select" }}
+                                </div>
+                            </div>
+
+                            <!-- Columna derecha -->
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="txtApMaterno" class="form-label">Apellido Paterno</label>
+                                    {{ form.apPaterno|agregar_class:"form-control" }}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="txtCorreo" class="form-label">Correo</label>
+                                    {{ form.correo|agregar_class:"form-control" }}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="txtRol" class="form-label">Fecha de Registro</label>
+                                    {{ form.fechaRegistro|agregar_class:"form-control" }}
+                                </div>
+                                <div class="text-center mt-4">
+                                    <button type="submit" class="btn btn-marron w-100" style="margin-top: 21px;">Registrar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                            <strong>Error:</strong> {{ form.non_field_errors }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <br>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Registro Exitoso</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">¡El usuario ha sido creado exitosamente!</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-marron" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-marron"><a href="{% url 'pedidos:admin_usuarios' %}">Regresar</a></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if registro_exitoso %}
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#exampleModalCenter').modal('show');
+    });
+</script>
+{% endif %}
+
+{% endblock %}
+<!-- Fin Contenido individual -->

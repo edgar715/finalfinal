@@ -1,0 +1,57 @@
+<!-- Importar el diseño de la plantilla -->
+{% extends 'plantilla.html' %}
+
+<!-- Cargar filtros personalizados -->
+{% load filtros %}
+
+<!-- Enlazar archivo CSS -->
+{% load static %}
+
+<!-- Cambiar titulo a la pestaña de navegación -->
+{% block title %} Inicio de Sesión {% endblock %}
+ 
+<!-- Imagen como icono de pestaña -->
+{% block head %}
+    <link rel="shotcut icon" href="https://th.bing.com/th/id/R.685500eb6197cd2542be81d9a7cfb0c7?rik=lcrGCnkXlvUoZg&riu=http%3a%2f%2fwww.clipartbest.com%2fcliparts%2fxTg%2fLbz%2fxTgLbzAXc.png&ehk=jDZ4porYNutAGkACzakuHgWkrv2Leq0aLMH7PXLoYJs%3d&risl=&pid=ImgRaw&r=0">
+{% endblock %}
+
+<!-- Contenido individual -->
+{% block body %}
+<link rel="stylesheet" href="{% static 'pedidos/css/formularios.css' %}">
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <br>
+            <div class="card mt-3">
+                <div class="card-header text-center">
+                    <h4><i class="fa-solid fa-users" style="color: #ffffff;"></i>&nbsp; Inicio de Sesión</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="txtCorreo" class="form-label">Correo Electrónico</label>
+                            {{ form.correo|agregar_class:"form-control" }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="txtContrasena" class="form-label">Contraseña</label>
+                            {{ form.contrasena|agregar_class:"form-control" }}
+                        </div>
+                        <button type="submit" class="btn btn-marron w-100">Iniciar sesión</button>
+                    </form>
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                        <strong>Error:</strong> {{ form.non_field_errors }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endif %}
+                    <p>¿Olvidaste tu contraseña?</p>
+                    <center><a href="{% url 'pedidos:recuperar_contraseña' %}">Recupérala aquí</a></center>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+<!-- Fin Contenido individual -->

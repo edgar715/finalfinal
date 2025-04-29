@@ -1,0 +1,107 @@
+/* Fondo general de la página */
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, sans-serif;
+}
+
+/* Estilos de la tarjeta de login */
+.card {
+    background-color: #ffffff; 
+    border-radius: 10px;
+    border-color: #664738;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+/* Estilo del encabezado de la tarjeta */
+.card-header {
+    background-color: #664738;
+    padding-top: 20px;
+}
+
+.card-header h4 {
+    font-size: 35px;
+    font-weight: bold;
+    color: white;
+}
+
+/* Estilo del cuerpo de la tarjeta */
+.card-body {
+    padding: 2rem;
+}
+
+/* Estilo para las etiquetas de los formularios */
+.form-label {
+    font-weight: bold;
+    color: #333; 
+}
+
+/* Estilo para los campos de formulario */
+.form-control {
+    border-radius: 8px;
+    border: 1px solid #ddd; 
+    padding: 0.75rem;
+    font-size: 1rem;
+}
+
+/* Estilo cuando el campo tiene foco */
+.form-control:focus {
+    border-color: #745445; 
+    box-shadow: 0 0 5px rgba(141, 110, 99, 0.3); 
+}
+
+
+/* Estilos del botón de inicio de sesión */
+.btn-marron {
+    background-color: #664738; 
+    color: white;
+    font-weight: bold;
+    padding: 0.75rem;
+    border-radius: 8px;
+    border-color: #664738;
+    transition: background-color 0.3s ease;
+}
+
+.btn-marron:hover {
+    background-color: #855b46; 
+    color: #fff;
+}
+
+.btn-marron a {
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+
+/* Enlace de registro */
+.card-body p {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 15px;
+    color: #555; 
+    margin-bottom: 5px;
+}
+
+.card-body a {
+    color: #855b46;
+    font-weight: bold; 
+    font-size: 17px;
+}
+
+.card-body a:hover {
+    color: #664738; 
+    text-decoration: underline;
+}
+
+/* Estilo para los mensajes de error */
+.alert.alert-danger {
+    font-size: 14px;
+    height: auto; 
+    padding: 6px;
+    background-color: #FFEBEE; 
+    border-left: 4px solid #D32F2F; 
+    color: #D32F2F;
+}

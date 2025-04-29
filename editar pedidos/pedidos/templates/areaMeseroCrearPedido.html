@@ -1,0 +1,226 @@
+{% extends 'plantilla.html' %}
+
+{% load filtros %}
+{% load static %}
+
+{% block title %}Crear Pedido{% endblock %}
+
+{% block head %}
+    <link rel="shotcut icon" href="https://cdn-icons-png.flaticon.com/512/5643/5643764.png">
+{% endblock %}
+
+{% block body %}
+<link rel="stylesheet" href="{% static 'pedidos/css/formularios.css' %}">
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <br>
+            <div class="card mt-3">
+                <div class="card-header text-center">
+                    <h4><i class="fa-solid fa-file-circle-plus"></i>&nbsp; Crear Nuevo Pedido</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'pedidos:crear_pedido' %}" id="pedidoForm">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label for="id_nota_cocina" class="form-label">Notas para la Cocina</label>
+                            {{ form.nota_cocina }}
+                        </div>
+
+                        <hr>
+
+                        <!-- Campos dinámicos para platillos -->
+                        <div id="formset-container">
+                            {{ formset.management_form }}
+                            {% for form in formset %}
+                            <div class="formset-form mb-3">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Categoría</label>
+                                        <select class="form-select categoriaSelect" style="height: 50px;" required>
+                                            <option value="" disabled selected>Seleccione</option>
+                                            {% for id, nombre in categorias %}
+                                                <option value="{{ id }}">{{ nombre }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div> 
+                                    <div class="col-md-4">
+                                        <label class="form-label">Opciones del Menú</label>
+                                        <select class="form-select productoSelect" name="form-{{ forloop.counter0 }}-producto" style="height: 50px;" required>
+                                            <option value="" disabled selected>Seleccione una categoría</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Cantidad</label>
+                                        {{ form.cantidad }}
+                                    </div>
+                                    <div class="col-md-2 d-flex align-items-center">
+                                        <div class="d-flex gap-2 w-100 justify-content-center" style="margin-top: 7px;">
+                                            <button type="button" id="add-form" class="btn btn-success mt-4"><i class="fa-solid fa-plus"></i></button>
+                                            <button type="button" class="btn btn-danger btn-remove mt-4" style="display: none;" disabled><i class="fa-solid fa-trash"></i> </button>
+                                        </div>
+                                    </div>                                    
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <button type="submit" class="btn btn-marron w-100 mt-4">Realizar Pedido</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let formsetContainer = document.getElementById('formset-container');
+        let totalForms = document.querySelector('#id_form-TOTAL_FORMS');
+
+        // Delegación de eventos para el botón de agregar platillo
+        formsetContainer.addEventListener('click', function (event) {
+            if (event.target && event.target.id === 'add-form') {
+                let formCount = parseInt(totalForms.value);
+                let newForm = formsetContainer.querySelector('.formset-form').cloneNode(true);
+
+                // Limpiar los valores del nuevo formulario
+                newForm.querySelectorAll('select, input').forEach(input => {
+                    if (input.classList.contains('categoriaSelect')) {
+                        input.selectedIndex = -1;  // Asegurarse de que no haya ninguna opción seleccionada
+                        let firstOption = input.querySelector('option[value=""]');
+                        if (firstOption) {
+                            firstOption.selected = true;  // Seleccionamos la opción "Seleccione"
+                        }
+                    } else if (input.classList.contains('productoSelect')) {
+                        // Limpiar el select de productos y poner la opción "Seleccione una categoría"
+                        input.innerHTML = '<option value="" disabled selected>Seleccione una categoría</option>';
+                    } else {
+                        input.value = '1';  // Establecer cantidad a 1 por defecto
+                    }
+                });
+
+                // Actualizar índices del nuevo formulario
+                updateFormAttributes(newForm, formCount);
+
+                // Añadir el nuevo formulario al contenedor
+                formsetContainer.appendChild(newForm);
+
+                // Actualizar el total de formularios
+                totalForms.value = formCount + 1;
+
+                // Mostrar el botón de eliminar del nuevo platillo
+                let removeButton = newForm.querySelector('.btn-remove');
+                removeButton.style.display = 'inline-block'; // Mostrar el botón de eliminar
+                removeButton.disabled = false; // Habilitar el botón de eliminar solo para los platillos añadidos
+
+                // Añadir listener para el botón de eliminar
+                addDeleteButtonListener(removeButton);
+
+                // Deshabilitar el botón de eliminar en el primer platillo
+                if (formCount === 0) {
+                    removeButton.disabled = true;
+                }
+            }
+        });
+
+        // Actualizar atributos de name e id después de clonar
+        function updateFormAttributes(form, index) {
+            form.querySelectorAll('select, input, button').forEach(function (input) {
+                if (input.name) {
+                    input.name = input.name.replace(/form-(\d+)-/g, `form-${index}-`);
+                }
+                if (input.id) {
+                    input.id = input.id.replace(/form-(\d+)-/g, `form-${index}-`);
+                }
+            });
+        }
+
+        // Eliminar platillo
+        function addDeleteButtonListener(button) {
+            button.addEventListener('click', function () {
+                button.closest('.formset-form').remove();
+                updateTotalForms();
+            });
+        }
+
+        // Actualizar el total de formularios
+        function updateTotalForms() {
+            let forms = formsetContainer.querySelectorAll('.formset-form');
+            totalForms.value = forms.length;
+        }
+
+        // Asignar listeners a los botones de eliminar existentes
+        document.querySelectorAll('.btn-remove').forEach(button => {
+            button.style.display = 'none'; // Inicialmente los botones de eliminar no son visibles
+            addDeleteButtonListener(button); // Añadir funcionalidad de eliminación
+            button.disabled = true; // Deshabilitar el primer botón de eliminar
+        });
+
+        // Evento cuando se cambia la categoría
+        $(document).on('change', '.categoriaSelect', function() {
+            let categoriaID = $(this).val();  // Obtenemos el ID de la categoría seleccionada
+            let productoSelect = $(this).closest('.formset-form').find('.productoSelect');
+            
+            // Limpiamos el select de productos y mostramos un mensaje de carga
+            productoSelect.empty().append('<option value="" disabled selected>Cargando...</option>');
+
+            // Llamamos a la vista con AJAX
+            $.ajax({
+                url: '{% url "pedidos:cargar_productos" %}',  // Asegúrate de que la URL esté correctamente configurada
+                data: { categoria: categoriaID },
+                success: function(data) {
+                    // Verificar que la respuesta contiene productos
+                    if (data.productos && data.productos.length > 0) {
+                        // Limpiamos y cargamos los productos
+                        productoSelect.empty().append('<option value="" disabled selected>Escoja</option>');
+
+                        // Recorremos los productos y los agregamos como opciones
+                        $.each(data.productos, function(index, producto) {
+                            // Verifica que los campos de producto no sean undefined
+                            if (producto.id && producto.text) {  // Verifica que haya datos válidos
+                                productoSelect.append(`<option value="${producto.id}">${producto.text}</option>`);
+                            }
+                        });
+                    } else {
+                        productoSelect.empty().append('<option value="" disabled selected>No hay opciones disponibles</option>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error al cargar los productos:", error);
+                    productoSelect.empty().append('<option value="" disabled selected>Error al cargar las opciones</option>');
+                }
+            });
+        });
+    });
+</script>
+
+
+<!-- Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="successModalTitle">Pedido Registrado</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">¡El pedido ha sido registrado exitosamente!</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-marron" data-bs-dismiss="modal">Cerrar</button>
+                <a href="{% url 'pedidos:adminMesero' %}" class="btn btn-marron">Regresar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if pedido_exitoso %}
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#successModal').modal('show');
+    });
+</script>
+{% endif %}
+
+{% endblock %}

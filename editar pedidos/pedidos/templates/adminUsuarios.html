@@ -1,0 +1,173 @@
+<!-- Importar el diseño de la plantilla -->
+{% extends 'plantilla.html' %}
+
+<!-- Enlazar archivo CSS -->
+{% load static %}
+
+<!-- Cambiar titulo a la pestaña de navegación -->
+{% block title %} Gestión de Usuarios {% endblock %}
+
+<!-- Imagen como icono de pestaña -->
+{% block head %}
+    <link rel="shotcut icon" href="https://cdn-icons-png.flaticon.com/512/12669/12669704.png">
+{% endblock %}
+
+<!-- Contenido individual -->
+{% block body %}
+<body data-user-id="{{ request.user.usuario.idUsuario }}">
+<link rel="stylesheet" href="{% static 'pedidos/css/listados.css' %}">
+
+<br>
+<div class="container bg-white rounded-3 mt-5">
+    <br><h2 class="text-center">USUARIOS</h2><br>
+
+    <!-- Botón para agregar un usuario nuevo -->
+    <div class="text-end mb-3">
+        <a href="{% url 'pedidos:registro_usuario' %}" class="btn btn-marron"><i class="fa-solid fa-plus" style="color: #ffffff;"></i>  Usuario Nuevo</a>
+    </div>
+
+    <!-- Tabla de usuarios -->
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col"># USUARIO</th>
+                <th scope="col">NOMBRE</th>
+                <th scope="col">TELÉFONO</th>
+                <th scope="col">CORREO</th>
+                <th scope="col">PUESTO</th>
+                <th scope="col">FECHA DE REGISTRO</th>
+                <th scope="col">ACCIONES</th>
+            </tr>
+        </thead> 
+        <tbody>
+            {% for usuario in usuarios %}
+            <tr>
+                <th>{{ usuario.idUsuario }}</th>
+                <td>{{ usuario.nombre|default:"" }} {{ usuario.apPaterno|default:"" }} {{ usuario.apMaterno|default:"" }}</td>
+                <td>{{ usuario.telefono }}</td>
+                <td>{{ usuario.correo }}</td>
+                <td>{{ usuario.get_rol_display }}</td>
+                <td>{{ usuario.fechaRegistro|date:"d/m/Y" }}</td>
+                <td>
+                    <a href="{% url 'pedidos:editar_usuario' usuario.idUsuario %}" class="btn btn-warning"><i class="fa-solid fa-pen-to-square" style="color: #000000;"></i></a>
+                    <button type="button" class="btn btn-danger delete-btn" data-id="{{ usuario.idUsuario }}" data-bs-toggle="modal"><i class="fa-solid fa-eraser" style="color: #000000;"></i></button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="text-center">No hay usuarios.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Paginación -->
+    <div class="d-flex justify-content-center mt-3">
+        <nav>
+            <ul class="pagination">
+                {% if usuarios.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1" aria-label="Primera página">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ usuarios.previous_page_number }}" aria-label="Página anterior">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+
+                <li class="page-item active">
+                    <span class="page-link">{{ usuarios.number }} <span class="sr-only">(actual)</span></span>
+                </li>
+
+                {% if usuarios.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ usuarios.next_page_number }}" aria-label="Página siguiente">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ usuarios.paginator.num_pages }}" aria-label="Última página">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- ELIMINAR USUARIO -->
+<!-- Modal de confirmación -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de que deseas eliminar a este usuario?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form method="POST" action="{% url 'pedidos:eliminar_pedido' 0 %}" id="deleteForm">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> 
+
+<!-- Modal de Error -->
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="errorModalLabel">¡Error!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                No puedes eliminar tu propio registro.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div> 
+
+<!-- Script para actualizar la acción del formulario con el ID del usuario -->
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        var deleteButtons = document.querySelectorAll('.delete-btn'); // Todos los botones de eliminar
+        var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+
+        var deleteForm = document.getElementById('deleteForm');
+        var userId = document.body.getAttribute('data-user-id'); // ID del usuario autenticado
+
+        deleteButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                var usuarioId = button.getAttribute('data-id');
+
+                if (usuarioId === userId) {
+                    // Si es el mismo usuario, mostrar el modal de error
+                    errorModal.show();
+                } else {
+                    // Si es otro usuario, actualizar el formulario y mostrar el modal de confirmación
+                    var actionUrl = "{% url 'pedidos:eliminar_usuario' 0 %}".replace('0', usuarioId);
+                    deleteForm.setAttribute('action', actionUrl);
+                    deleteModal.show();
+                }
+            });
+        });
+    });
+</script>
+
+</body>
+{% endblock %}
+<!-- Fin Contenido individual -->

@@ -1,0 +1,36 @@
+<!-- Importar el diseño de la plantilla -->
+{% extends 'plantilla.html' %}
+
+<!-- Enlazar archivo CSS -->
+{% load static %}
+
+<!-- Cambiar titulo a la pestaña de navegación -->
+{% block title %} Administrador {% endblock %}
+
+<!-- Imagen como icono de pestaña -->
+{% block head %}
+    <link rel="shotcut icon" href="https://cdn-icons-png.flaticon.com/512/2942/2942813.png">
+{% endblock %}
+ 
+<!-- Contenido individual -->
+{% block body %}
+<link rel="stylesheet" href="{% static 'pedidos/css/listados.css' %}">
+
+<br>
+<div class="container bg-white rounded-3 mt-5">
+    <br><br><br><h2 class="text-center">ADMINISTRADOR</h2><br><br>
+
+    <div class="container text-center">
+        <div class="row">
+            <div class="col-6 mb-3">
+                <a href="{% url 'pedidos:admin_usuarios' %}" class="btn btn-marron btn-admin"><br><i class="fa-solid fa-users fa-2xl" style="color: #ffffff;"></i><br><br>Gestionar Usuarios<br><br></a>
+            </div>
+            <div class="col-6 mb-3">
+                <a href="{% url 'pedidos:admin_productos' %}" class="btn btn-marron btn-admin"><br><i class="fa-solid fa-utensils fa-2xl" style="color: #ffffff;"></i><br><br>Gestionar Productos<br><br></a>
+            </div>
+        </div>
+    </div> 
+    <br><br><br>   
+</div>
+{% endblock %}
+<!-- Fin Contenido individual -->
